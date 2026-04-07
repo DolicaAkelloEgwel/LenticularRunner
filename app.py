@@ -3,6 +3,7 @@ import os
 
 from app import App
 from app_components import clear_background
+import imu
 
 from events.input import Buttons, BUTTON_TYPES
 
@@ -27,17 +28,23 @@ else:
 
 ASSET_PATH = "apps/lenticular/assets/"
 
+IMAGE_COUNT = 19
+
+
 class LenticularGuy(App):
-  def __init__(self):
-    self.button_states = Buttons(self)
+    def __init__(self):
+        self.button_states = Buttons(self)
+        self.image_paths = [f"frame_{i:02d}_delay-0.04s.png" for i in range(19)]
 
-  def update(self, delta):
-    if self.button_states.get(BUTTON_TYPES["CANCEL"]):
-        self.button_states.clear()
-        self.minimise()
+    def update(self, delta):
+        if self.button_states.get(BUTTON_TYPES["CANCEL"]):
+            self.button_states.clear()
+            self.minimise()
 
-  def draw(self, ctx):
-    clear_background(ctx)
-    ctx.image(ASSET_PATH + "frame_00_delay-0.04s.png", -100, -100, 200, 200)
+    def draw(self, ctx):
+        clear_background(ctx)
+        tilt = int(imu.acc_read()[1] * 3)
+        ctx.image(ASSET_PATH + self.image_paths[tilt % IMAGE_COUNT], -100, -100, 200, 200)
+
 
 __app_export__ = LenticularGuy
